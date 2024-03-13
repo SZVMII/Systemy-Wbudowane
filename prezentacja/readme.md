@@ -1,0 +1,1 @@
+prezka moja i jarzyna
