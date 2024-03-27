@@ -1,1 +1,1 @@
-Aberama Gold
+potencjometr
