@@ -1,59 +1,41 @@
-#include <stdio.h>
-#include <stdlib.h>
+// CONFIG2
+#pragma config POSCMOD = HS             // Primary Oscillator Select (HS Oscillator mode selected)
+#pragma config OSCIOFNC = OFF           // Primary Oscillator Output Function (OSC2/CLKO/RC15 functions as CLKO (FOSC/2))
+#pragma config FCKSM = CSDCMD           // Clock Switching and Monitor (Clock switching and Fail-Safe Clock Monitor are disabled)
+#pragma config FNOSC = PRIPLL           // Oscillator Select (Primary Oscillator with PLL module (HSPLL, ECPLL))
+#pragma config IESO = OFF               // Internal External Switch Over Mode (IESO mode (Two-Speed Start-up) disabled)
 
-#define BIT_VALUE(val,no_bit) (val>>no_bit)&1
+// CONFIG1
+#pragma config WDTPS = PS32768          // Watchdog Timer Postscaler (1:32,768)
+#pragma config FWPSA = PR128            // WDT Prescaler (Prescaler ratio of 1:128)
+#pragma config WINDIS = ON              // Watchdog Timer Window (Standard Watchdog Timer enabled,(Windowed-mode is disabled))
+#pragma config FWDTEN = OFF             // Watchdog Timer Enable (Watchdog Timer is disabled)
+#pragma config ICS = PGx2               // Comm Channel Select (Emulator/debugger uses EMUC2/EMUD2)
+#pragma config GWRP = OFF               // General Code Segment Write Protect (Writes to program memory are allowed)
+#pragma config GCP = OFF                // General Code Segment Code Protect (Code protection is disabled)
+#pragma config JTAGEN = OFF             // JTAG Port Enable (JTAG port is disabled)
 
-int delay(){
-    int i,j;
 
-    for(i=0;i<77777;i++)
-        for(j=0;j<7777;j++)
-    {
+#include "xc.h"
+#include <libpic30.h>
 
+
+int main(void) {
+    unsigned portValue;
+    TRISA = 0x0000;
+    TRISB = 0xFFFF;
+    
+    AD1CON1 = 0x80E4;
+    AD1CON2 = 0x0404;
+    AD1CON3 = 0x0F00;
+    AD1CHS = 0;
+    AD1CSSL = 0x0020;
+    
+    while(1){
+        while(!AD1CON1bits.DONE);
+        portValue = ADC1BUF0;
+        LATA = portValue>>2;
+        
     }
-    return 0;
-}
-
-int generator(int seed){
-    int wynik;
-
-    do
-    {
-        wynik = BIT_VALUE(seed,0)^BIT_VALUE(seed,1)^BIT_VALUE(seed,4)^BIT_VALUE(seed,5);
-        seed = (seed >> 1) | (wynik<<5);
-        printf("%d \n",seed);
-        delay(100);
-    }
-    while(seed != 0);
-
-    return 0;
-
-}
-
-
-int generator2(int seed){
-    int wynik,wynik2;
-    int seed2=seed;
-
-    do
-    {
-        wynik = BIT_VALUE(seed,0)^BIT_VALUE(seed,1)^BIT_VALUE(seed,4)^BIT_VALUE(seed,5);
-        wynik2 = BIT_VALUE(seed2,0)^BIT_VALUE(seed2,3)^BIT_VALUE(seed2,4)^BIT_VALUE(seed2,5);
-        seed2 = (seed2 >> 1) | (wynik2<<5);
-        seed = (seed >> 1) | (wynik<<5);
-        printf("%d \n",seed2);
-        delay(100);
-    }
-    while(seed != 0);
-
-    return 0;
-
-}
-
-int main()
-{
-
-    generator2(5);
-
     return 0;
 }
