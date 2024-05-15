@@ -15,8 +15,6 @@
 #pragma config GCP = OFF                // General Code Segment Code Protect (Code protection is disabled)
 #pragma config JTAGEN = OFF             // JTAG Port Enable (JTAG port is disabled)
     
-#define _XTAL_FREQ 8000000
-#define CONFIGURATION 0b1110011
 #define BIT_VALUE(val, no_bit) (val >> no_bit) & 1
 
 
@@ -27,19 +25,7 @@ unsigned portValue = 0;
 char  prevS6=0, currentS6=0, prevS7=0, currentS7, program = 0;
 int number = 0;
 
-//zad 1 i 2
-void __attribute__((interrupt, auto_psv)) _T1Interrupt(void){
-    if(program ==0){
-        portValue++;
-    }
-    
-    if(program == 1){
-        portValue--;
-    }
-    
-    LATA = portValue;
-    _T1IF = 0;
-}
+
 
 void zad1(){
     unsigned char counter = 0;
@@ -193,14 +179,14 @@ void zad6(){
 }
 
 void zad7(){
-    unsigned char portValue[10] = {7,14,28,56,112,224,112,56,28,14};
+    unsigned char portValue7[10] = {7,14,28,56,112,224,112,56,28,14};
     TRISA = 0x0000;
     TRISD = 0xFFFF;
     unsigned int i = 0;
     
     while(1)
     {
-        LATA = portValue[i];
+        LATA = portValue7[i];
         __delay32(1000000);
         i++;
        
@@ -224,7 +210,7 @@ void zad7(){
 }
 
 void zad8(){
-     unsigned char portValue = 0;
+    unsigned char portValue8 = 0;
     TRISA = 0x0000;
     TRISD = 0xFFFF;
     int break_button1 = 0;
@@ -235,8 +221,11 @@ void zad8(){
         int temp = 1;
         for(int j=i+1; j<8; j++)
         {
-            LATA = portValue + temp;
+            LATA = portValue8 + temp;
             temp = temp << 1;
+            
+            __delay32(1000000);
+            
             if(PORTDbits.RD6 == 0)
             {
                 break_button1 = 1;
@@ -248,10 +237,8 @@ void zad8(){
                 break_button2 = 1;
                 break;
             }
-            
-            __delay32(4000000);
         }
-        portValue += temp;
+        portValue8 += temp;
         
         if(break_button1 == 1)
         {
@@ -265,21 +252,22 @@ void zad8(){
             break;
         }
     }
-    
 }
 
 void zad9(){
-    unsigned char portValue;
+    unsigned char portValue9;
     unsigned char seed = 0b1110011;
     TRISA = 0x0000;
     TRISD = 0xFFFF;
     
     while(seed != 0)
     {
-        portValue = (seed >> 0) ^ (seed >> 1) ^ (seed >> 4) ^ (seed >> 5) ^ (seed >> 6);
+        portValue9 = (seed >> 0) ^ (seed >> 1) ^ (seed >> 4) ^ (seed >> 5) ^ (seed >> 6);
         seed = seed >> 1 | seed << 6;
-        LATA = portValue;
+        LATA = portValue9;
+        __delay32(1000000);
         
+               
        if(PORTDbits.RD6 == 0)
        {
            number -= 1;
@@ -291,8 +279,6 @@ void zad9(){
            number += 1;
            break;
        }
-        
-        __delay32(4000000);
     }
 }
 

@@ -18,7 +18,7 @@ Command:
   -Lc:/program files/microchip/xc16/v2.10/bin/bin/../../support/dsPIC33C/gld \
   -Lc:/program files/microchip/xc16/v2.10/bin/bin/../../support/dsPIC33E/gld \
   -Lc:/program files/microchip/xc16/v2.10/bin/bin/../../support/dsPIC33F/gld \
-  build/default/production/newmainXC16.o \
+  build/default/production/newmainDZ.o \
   --defsym=__MPLAB_BUILD=1 \
   -Tp24FJ128GA010.gld.00 \
   --stack=16 \
@@ -53,7 +53,7 @@ c:/program files/microchip/xc16/v2.10/bin/bin/../../lib\libc99-pic30-elf.a(data_
 c:/program files/microchip/xc16/v2.10/bin/bin/../../lib\libc99-pic30-elf.a(crt_start_mode_normal.Meo)
                               (__crt_start_mode_normal)
 c:/program files/microchip/xc16/v2.10/bin/bin/../../lib\libc99-pic30-elf.a(delay32.Meo)
-                              build/default/production/newmainXC16.o (___delay32)
+                              build/default/production/newmainDZ.o (___delay32)
 
 
 xc16-ld 2.10 (B)
@@ -66,12 +66,13 @@ Default Scalar Model: Small
 
 section                    address   length (PC units)   length (bytes) (dec)
 -------                    -------   -----------------   --------------------
-.text                        0x200                0xfe           0x17d  (381)
-.text                        0x2fe               0x2ce           0x435  (1077)
-.init.delay32                0x5cc                0x1c            0x2a  (42)
-.dinit                       0x5e8                 0x8             0xc  (12)
+.text                        0x200                0xce           0x135  (309)
+.const                       0x2ce                 0xa             0xf  (15)
+.text                        0x2d8               0x3e2           0x5d3  (1491)
+.init.delay32                0x6ba                0x1c            0x2a  (42)
+.dinit                       0x6d6                 0x8             0xc  (12)
 
-                 Total "program" memory used (bytes):          0x5e8  (1512) 1%
+                 Total "program" memory used (bytes):          0x74d  (1869) 1%
 
 
 "data" Memory  [Origin = 0x800, Length = 0x2000]
@@ -121,35 +122,37 @@ External Symbols in Program Memory (by address):
                   0x00023c                  __psv_init
                   0x000252                  __data_init
                   0x000252                  __data_init_standard
-                  0x0002c8                  __T1Interrupt
-                  0x0002f8                  __DefaultInterrupt
-                  0x0002fe                  _zad1
-                  0x00034c                  _zad2
-                  0x00039a                  _zad3
-                  0x0003ea                  _zad4
-                  0x00043a                  _zad5
-                  0x0004a4                  _zad6
-                  0x00050e                  _zad7
-                  0x00057a                  _main
-                  0x0005cc                  ___delay32
+                  0x0002c8                  __DefaultInterrupt
+                  0x0002d8                  _zad1
+                  0x000326                  _zad2
+                  0x000374                  _zad3
+                  0x0003c4                  _zad4
+                  0x000414                  _zad5
+                  0x00047e                  _zad6
+                  0x0004e8                  _zad7
+                  0x000544                  _zad8
+                  0x0005dc                  _zad9
+                  0x00065a                  _main
+                  0x0006ba                  ___delay32
 
 External Symbols in Program Memory (by name):
 
-                  0x0002f8                  __DefaultInterrupt
-                  0x0002c8                  __T1Interrupt
-                  0x0005cc                  ___delay32
+                  0x0002c8                  __DefaultInterrupt
+                  0x0006ba                  ___delay32
                   0x000252                  __data_init
                   0x000252                  __data_init_standard
                   0x00023c                  __psv_init
                   0x000200                  __resetPRI
-                  0x00057a                  _main
-                  0x0002fe                  _zad1
-                  0x00034c                  _zad2
-                  0x00039a                  _zad3
-                  0x0003ea                  _zad4
-                  0x00043a                  _zad5
-                  0x0004a4                  _zad6
-                  0x00050e                  _zad7
+                  0x00065a                  _main
+                  0x0002d8                  _zad1
+                  0x000326                  _zad2
+                  0x000374                  _zad3
+                  0x0003c4                  _zad4
+                  0x000414                  _zad5
+                  0x00047e                  _zad6
+                  0x0004e8                  _zad7
+                  0x000544                  _zad8
+                  0x0005dc                  _zad9
 
 Memory Configuration
 
@@ -166,7 +169,7 @@ CONFIG1          0x0157fe           0x000002
 
 Linker script and memory map
 
-LOAD build/default/production/newmainXC16.o
+LOAD build/default/production/newmainDZ.o
                     0x0001                  __MPLAB_BUILD = 0x1
 LOAD pPIC24Fxxx
 LOAD c:/program files/microchip/xc16/v2.10/bin/bin/../../lib\libfx-elf.a
@@ -185,7 +188,7 @@ LOAD c:/program files/microchip/xc16/v2.10/bin/bin/../../lib\libfx-elf.a
                   0x000002          0x2 SHORT 0x0 ((ABSOLUTE (__reset) >> 0x10) & 0x7f)
                   0x000003          0x2 SHORT 0x0
 
-.text             0x000200         0xfe
+.text             0x000200         0xce
  *(.init)
  .init            0x000200         0x4c c:/program files/microchip/xc16/v2.10/bin/bin/../../lib\libc99-pic30-elf.a(crt0_standard.o)
                   0x000200                  __resetPRI
@@ -197,18 +200,16 @@ LOAD c:/program files/microchip/xc16/v2.10/bin/bin/../../lib\libfx-elf.a
  *(.user_init)
  *(.handle)
  *(.isr*)
- .isr.text        0x0002c8         0x30 build/default/production/newmainXC16.o
-                  0x0002c8                  __T1Interrupt
- .isr             0x0002f8          0x4 default_isr
-                  0x0002f8                  __DefaultInterrupt
+ .isr             0x0002c8          0x4 default_isr
+                  0x0002c8                  __DefaultInterrupt
  *(.libc)
  *(.libm)
  *(.libdsp)
  *(.lib*)
  .libpic30_crt_start_mode
-                  0x0002fc          0x2 c:/program files/microchip/xc16/v2.10/bin/bin/../../lib\libc99-pic30-elf.a(crt_start_mode_normal.Meo)
-                  0x0002fc                  __crt_start_mode
-                  0x0002fc                  __crt_start_mode_normal
+                  0x0002cc          0x2 c:/program files/microchip/xc16/v2.10/bin/bin/../../lib\libc99-pic30-elf.a(crt_start_mode_normal.Meo)
+                  0x0002cc                  __crt_start_mode
+                  0x0002cc                  __crt_start_mode_normal
 
 usercode
  *(usercode)
@@ -222,26 +223,26 @@ __CONFIG1
 .comment
  *(.comment)
 
-.debug_info       0x000000        0x6dc
+.debug_info       0x000000        0x67a
  *(.debug_info)
- .debug_info      0x000000        0x6dc build/default/production/newmainXC16.o
+ .debug_info      0x000000        0x67a build/default/production/newmainDZ.o
  *(.gnu.linkonce.wi.*)
 
-.debug_abbrev     0x000000        0x14b
+.debug_abbrev     0x000000        0x122
  *(.debug_abbrev)
- .debug_abbrev    0x000000        0x14b build/default/production/newmainXC16.o
+ .debug_abbrev    0x000000        0x122 build/default/production/newmainDZ.o
 
-.debug_line       0x000000        0x1d2
+.debug_line       0x000000        0x1f5
  *(.debug_line)
- .debug_line      0x000000        0x1d2 build/default/production/newmainXC16.o
+ .debug_line      0x000000        0x1f5 build/default/production/newmainDZ.o
 
-.debug_frame      0x000000        0x10e
+.debug_frame      0x000000        0x118
  *(.debug_frame)
- .debug_frame     0x000000        0x10e build/default/production/newmainXC16.o
+ .debug_frame     0x000000        0x118 build/default/production/newmainDZ.o
 
-.debug_str        0x000000         0x1d
+.debug_str        0x000000          0xa
  *(.debug_str)
- .debug_str       0x000000         0x1d build/default/production/newmainXC16.o
+ .debug_str       0x000000          0xa build/default/production/newmainDZ.o
 
 .debug_loc
  *(.debug_loc)
@@ -250,10 +251,10 @@ __CONFIG1
  *(.debug_macinfo)
 
 .debug_pubnames
-                  0x000000         0xc2
+                  0x000000         0xc3
  *(.debug_pubnames)
  .debug_pubnames
-                  0x000000         0xc2 build/default/production/newmainXC16.o
+                  0x000000         0xc3 build/default/production/newmainDZ.o
 
 .debug_ranges
  *(.debug_ranges)
@@ -261,7 +262,7 @@ __CONFIG1
 .debug_aranges    0x000000         0x18
  *(.debug_aranges)
  .debug_aranges
-                  0x000000         0x18 build/default/production/newmainXC16.o
+                  0x000000         0x18 build/default/production/newmainDZ.o
                     0x0000                  WREG0 = 0x0
                     0x0000                  _WREG0 = 0x0
                     0x0002                  WREG1 = 0x2
@@ -844,23 +845,23 @@ LOAD default_isr
 LOAD data_init
 
 .debug_pubtypes
-                  0x000018         0x5b
+                  0x000018         0x3e
  .debug_pubtypes
-                  0x000018         0x5b build/default/production/newmainXC16.o
+                  0x000018         0x3e build/default/production/newmainDZ.o
 
 __c30_signature
-                  0x000073         0x18
+                  0x000056         0x18
  __c30_signature
-                  0x000073          0x6 build/default/production/newmainXC16.o
+                  0x000056          0x6 build/default/production/newmainDZ.o
  __c30_signature
-                  0x000079          0x6 c:/program files/microchip/xc16/v2.10/bin/bin/../../lib\libc99-pic30-elf.a(crt0_standard.o)
+                  0x00005c          0x6 c:/program files/microchip/xc16/v2.10/bin/bin/../../lib\libc99-pic30-elf.a(crt0_standard.o)
  __c30_signature
-                  0x00007f          0x6 c:/program files/microchip/xc16/v2.10/bin/bin/../../lib\libc99-pic30-elf.a(data_init_standard.o)
+                  0x000062          0x6 c:/program files/microchip/xc16/v2.10/bin/bin/../../lib\libc99-pic30-elf.a(data_init_standard.o)
  __c30_signature
-                  0x000085          0x6 c:/program files/microchip/xc16/v2.10/bin/bin/../../lib\libc99-pic30-elf.a(delay32.Meo)
+                  0x000068          0x6 c:/program files/microchip/xc16/v2.10/bin/bin/../../lib\libc99-pic30-elf.a(delay32.Meo)
 
 .nbss               0x0800          0xa
- .nbss              0x0800          0xa build/default/production/newmainXC16.o
+ .nbss              0x0800          0xa build/default/production/newmainDZ.o
                     0x0800                  _portValue
                     0x0802                  _prevS6
                     0x0803                  _currentS6
@@ -871,30 +872,30 @@ __c30_signature
 
 .config_JTAGEN    0x0157fe          0x2
  .config_JTAGEN
-                  0x0157fe          0x2 build/default/production/newmainXC16.o
+                  0x0157fe          0x2 build/default/production/newmainDZ.o
 
 .config_IESO      0x0157fc          0x2
- .config_IESO     0x0157fc          0x2 build/default/production/newmainXC16.o
+ .config_IESO     0x0157fc          0x2 build/default/production/newmainDZ.o
 
-.ivt._T1Interrupt
-                  0x00001a          0x2
- .ivt._T1Interrupt
-                  0x00001a          0x2 build/default/production/newmainXC16.o
+.const              0x82ce          0xa load address 0x0002ce  
+ .const             0x82ce          0xa build/default/production/newmainDZ.o
 
-.text             0x0002fe        0x2ce
- .text            0x0002fe        0x2ce build/default/production/newmainXC16.o
-                  0x0002fe                  _zad1
-                  0x00034c                  _zad2
-                  0x00039a                  _zad3
-                  0x0003ea                  _zad4
-                  0x00043a                  _zad5
-                  0x0004a4                  _zad6
-                  0x00050e                  _zad7
-                  0x00057a                  _main
+.text             0x0002d8        0x3e2
+ .text            0x0002d8        0x3e2 build/default/production/newmainDZ.o
+                  0x0002d8                  _zad1
+                  0x000326                  _zad2
+                  0x000374                  _zad3
+                  0x0003c4                  _zad4
+                  0x000414                  _zad5
+                  0x00047e                  _zad6
+                  0x0004e8                  _zad7
+                  0x000544                  _zad8
+                  0x0005dc                  _zad9
+                  0x00065a                  _main
 
-.init.delay32     0x0005cc         0x1c
- .init.delay32    0x0005cc         0x1c c:/program files/microchip/xc16/v2.10/bin/bin/../../lib\libc99-pic30-elf.a(delay32.Meo)
-                  0x0005cc                  ___delay32
+.init.delay32     0x0006ba         0x1c
+ .init.delay32    0x0006ba         0x1c c:/program files/microchip/xc16/v2.10/bin/bin/../../lib\libc99-pic30-elf.a(delay32.Meo)
+                  0x0006ba                  ___delay32
 
-.dinit            0x0005e8          0x8
- .dinit           0x0005e8          0x8 data_init
+.dinit            0x0006d6          0x8
+ .dinit           0x0006d6          0x8 data_init
