@@ -18,7 +18,7 @@
 #include <stdbool.h>
 
 // DEFINICJE MAKRO
-#define FCY         4000000UL   // Cz?stotliwo?? zegara
+#define FCY         4000000UL   // CzÄ™stotliwoÅ›Ä‡ pracy oscylatora
 #define LCD_E       LATDbits.LATD4  
 #define LCD_RW      LATDbits.LATD5
 #define LCD_RS      LATBbits.LATB15
@@ -34,94 +34,87 @@
 #define LCD_CUST_CHAR   0x40
 #define LCD_SHIFT_R     0x1D
 
-// Funkcja opó?nienia w nanosekundach
-void __delay_nanoSec(unsigned long us){
-    __delay32(us * FCY / 1000000);
+// Funckje delay
+void __delay_us(unsigned long us){
+    __delay32(us*FCY/1000000);
 }
 
-// Funkcja opó?nienia w milisekundach
-void __delay_miliSec(unsigned long ms){
-    __delay32(ms * FCY / 1000);
+void __delay_ms(unsigned long ms){
+    __delay32(ms*FCY/1000);
 }
 
-// Funkcja wysy?ania komendy do LCD
+// Funkcje LCD
 void LCD_sendCommand(unsigned char command){
-    LCD_RW = 0;     // Ustaw RW w tryb zapisu
-    LCD_RS = 0;     // Ustaw RS w tryb komendy
-    LCD_E = 1;      // W??cz LCD
-    LCD_DATA = command; // Wy?lij komend?
-    __delay_nanoSec(50); // Czekaj na przetworzenie komendy
-    LCD_E = 0;      // Wy??cz LCD
+    LCD_RW = 0;     
+    LCD_RS = 0;     
+    LCD_E = 1;      
+    LCD_DATA = command;
+    __delay_us(50);
+    LCD_E = 0;
 }
 
-// Funkcja wysy?ania danych do LCD
 void LCD_sendData(unsigned char data){
-    LCD_RW = 0;     // Ustaw RW w tryb zapisu
-    LCD_RS = 1;     // Ustaw RS w tryb danych
-    LCD_E = 1;      // W??cz LCD
-    LCD_DATA = data; // Wy?lij dane
-    __delay_nanoSec(50); // Czekaj na przetworzenie danych
-    LCD_E = 0;      // Wy??cz LCD
+    LCD_RW = 0;
+    LCD_RS = 1;     
+    LCD_E = 1;
+    LCD_DATA = data;
+    __delay_us(50);
+    LCD_E = 0;
 }
 
-// Funkcja drukowania stringa na LCD
 void LCD_print(unsigned char* string){
     while(*string){
-        LCD_sendData(*string++); // Wy?lij znaki jeden po drugim
+        LCD_sendData(*string++);
     }
 }
 
-// Funkcja ustawiania kursora na LCD
 void LCD_setCursor(unsigned char row, unsigned char col){
     unsigned char address;
     if (row == 1){
-        address = LCD_CURSOR + LINE1 + col; // Oblicz adres dla wiersza 1
+        address = LCD_CURSOR + LINE1 + col;
     }
-    if (row == 2){
-        address = LCD_CURSOR + LINE2 + col; // Oblicz adres dla wiersza 2
+    if(row == 2){
+        address = LCD_CURSOR + LINE2 + col;
     }
-    LCD_sendCommand(address); // Wy?lij komend? ustawiaj?c? kursor
+    LCD_sendCommand(address);
 }
 
-// Funkcja inicjalizacji LCD
 void LCD_init(){
-    __delay_miliSec(20);        // Czekaj na uruchomienie LCD
-    LCD_sendCommand(LCD_CONFIG); // Wy?lij komend? konfiguracyjn?
-    __delay_nanoSec(50);        // Czekaj na przetworzenie komendy
-    LCD_sendCommand(LCD_ON);    // W??cz LCD
-    __delay_nanoSec(50);        // Czekaj na przetworzenie komendy
-    LCD_sendCommand(LCD_CLEAR); // Wyczy?? LCD
-    __delay_miliSec(2);         // Czekaj na przetworzenie komendy czyszczenia
+    __delay_ms(20);
+    LCD_sendCommand(LCD_CONFIG);
+    __delay_us(50);
+    LCD_sendCommand(LCD_ON);
+    __delay_us(50);
+    LCD_sendCommand(LCD_CLEAR);
+    __delay_ms(2);
 }
 
-// Funkcja odczytu ADC
+// Funkcje obsÅ‚ugi przyciskÃ³w i potencjometru
 unsigned int read_ADC(void){
-    AD1CON1bits.SAMP = 1;       // Rozpocznij próbkowanie
-    while(!AD1CON1bits.DONE);   // Czekaj na zako?czenie konwersji
-    return ADC1BUF0;            // Zwró? warto?? ADC
+    AD1CON1bits.SAMP = 1;
+    while(!AD1CON1bits.DONE);
+    return ADC1BUF0;
 }
 
-// Funkcja wy?wietlania mocy na LCD
 void display_power(unsigned int power){
-    LCD_setCursor(1, 0);        // Ustaw kursor na pierwszym wierszu, pierwsza kolumna
-    LCD_print("Power: ");       // Wy?wietl "Power: "
-    LCD_sendData('0' + power / 100); // Wy?wietl cyfr? setek
-    LCD_sendData('0' + (power % 100) / 10); // Wy?wietl cyfr? dziesi?tek
-    LCD_sendData('0' + power % 10); // Wy?wietl cyfr? jednostek
+    LCD_setCursor(1, 0);
+    LCD_print("Moc(W): ");
+    LCD_sendData('0' + power / 100);
+    LCD_sendData('0' + (power % 100) / 10);
+    LCD_sendData('0' + power % 10 -2);
 }
 
-// Funkcja wy?wietlania czasu na LCD
 void display_time(unsigned int time){
-    LCD_setCursor(2, 0);        // Ustaw kursor na drugim wierszu, pierwsza kolumna
-    LCD_print("Time: ");        // Wy?wietl "Time: "
-    LCD_sendData('0' + time / 60); // Wy?wietl minuty
-    LCD_sendData(':');          // Wy?wietl dwukropek
-    LCD_sendData('0' + (time % 60) / 10); // Wy?wietl dziesi?tki sekund
-    LCD_sendData('0' + time % 10); // Wy?wietl sekundy
+    LCD_setCursor(2, 0);
+    LCD_print("Czas: ");
+    LCD_sendData('0' + time / 60);
+    LCD_sendData(':');
+    LCD_sendData('0' + (time % 60) / 10);
+    LCD_sendData('0' + time % 10);
 }
 
 int main(void) {
-    TRISB = 0x7FFF;     // Ustawienie rejestrów kierunku
+    TRISB = 0x7FFF;     // Ustawienie rejestrow kierunku
     TRISD = 0xFFE7;
     TRISE = 0x0000;
     
@@ -131,47 +124,42 @@ int main(void) {
     AD1CHS = 0;
     AD1CSSL = 0x0020;
     
-    LCD_init();         // Inicjalizacja wy?wietlacza
+    LCD_init();         // Inicjalizacja wyÅ›wietlacza
     
-    unsigned int power = 0;    // Zmienna do przechowywania warto?ci mocy
-    unsigned int time = 0;     // Zmienna do przechowywania warto?ci czasu
-    bool running = false;      // Flaga stanu dzia?ania
-    bool reset = false;        // Flaga resetowania
+    unsigned int moc = 0;
+    unsigned int time = 0;
+    bool running = false;
+    bool reset = false;
     
-    char current6 = 0;         // Aktualny stan przycisku RD6
-    char prev6 = 0;            // Poprzedni stan przycisku RD6
-    char current7 = 0;         // Aktualny stan przycisku RD7
-    char prev7 = 0;            // Poprzedni stan przycisku RD7
-    char current8 = 0;         // Aktualny stan przycisku RD8
-    char prev8 = 0;            // Poprzedni stan przycisku RD8
+    char current6 = 0, prev6 = 0, current7 = 0, prev7 = 0, current8 = 0, prev8 = 0;
     
     while(1) {
-        power = read_ADC() / 10; // Skalowanie warto?ci ADC do zakresu 0-102
+        moc = read_ADC() / 10;
         
-        prev6 = PORTDbits.RD6;      // Skanowanie zmiany stanu przycisków
+        prev6 = PORTDbits.RD6;      //scanning for a change of buttons' state
         prev7 = PORTDbits.RD7;
-        prev8 = PORTDbits.RD8;
+		prev8 = PORTDbits.RD8;
         __delay32(150000);
         current6 = PORTDbits.RD6;
         current7 = PORTDbits.RD7;
-        current8 = PORTDbits.RD8;
+		current8 = PORTDbits.RD8;
         
         if(current6 - prev6 == 1){  // Przycisk dodawania czasu
-            time += 10;
+            time += 30;
         }
        
-        if(current7 - prev7 == 1){  // Przycisk start/stop
+        if(current7 - prev7 ==1){  // Przycisk start/stop
             running = !running;
         }
         
-        if(current8 - prev8 == 1){  // Przycisk reset
-            power = 0;
+        if(current8 - prev8 ==1 ){  // Przycisk reset
+            moc = 0;
             time = 0;
             running = false;
         }
         
         if(running && time > 0){
-            __delay_miliSec(1000); // Odliczanie w dó? co sekund?
+            __delay_ms(1000); // Odliczanie w dÃ³Å‚ co sekundÄ™
             time--;
         }
         
@@ -179,8 +167,8 @@ int main(void) {
         {
             running = false;
         }
-        display_power(power);  // Wy?wietlanie mocy na LCD
-        display_time(time);    // Wy?wietlanie czasu na LCD
+        display_power(moc);
+        display_time(time);
     }
     
     return 0;
