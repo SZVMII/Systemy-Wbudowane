@@ -18,8 +18,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-// DEFINICJE MAKRO
-#define FCY         4000000UL   // Częstotliwość pracy oscylatora
+//makra
+#define FCY         4000000UL	//czestotliwosc oscylatora
 #define LCD_E       LATDbits.LATD4  
 #define LCD_RW      LATDbits.LATD5
 #define LCD_RS      LATBbits.LATB15
@@ -36,7 +36,7 @@
 //WAZNE!!!!!!
 //trzeba przytrzymac sekunde guziki zeby zmienic czas
 
-// Funckje delay
+// delaye
 void __delayNanoSec(unsigned long nanosec){
     __delay32(nanosec*FCY/1000000);
 }
@@ -45,7 +45,7 @@ void __delayMiliSec(unsigned long milisec){
     __delay32(milisec*FCY/1000);
 }
 
-// Funkcje LCD
+//wysylanie komend do lcd
 void sendComLCD(unsigned char comend){
     LCD_RW = 0;     
     LCD_RS = 0;     
@@ -55,6 +55,7 @@ void sendComLCD(unsigned char comend){
     LCD_E = 0;
 }
 
+//wysylanie danych do lcd
 void sendDataLCD(unsigned char data){
     LCD_RW = 0;
     LCD_RS = 1;     
@@ -64,12 +65,14 @@ void sendDataLCD(unsigned char data){
     LCD_E = 0;
 }
 
+//wyswietlanie ciagow znakow
 void printLCD(unsigned char* str){
     while(*str){
         sendDataLCD(*str++);
     }
 }
 
+//ustawianie kursora
 void setCurLCD(unsigned char row, unsigned char column){
     unsigned char address;
     if (row == 1){
@@ -91,7 +94,7 @@ void initializeLCD(){
    __delayMiliSec(2);
 }
 
-
+//wyswietlanie czasu w danym formacie
 void timeDisp(unsigned int czas, unsigned int cur){
     setCurLCD(cur, 0);
     printLCD("Czas: ");
@@ -103,51 +106,52 @@ void timeDisp(unsigned int czas, unsigned int cur){
 
 
 int main(void) {
-    TRISB = 0x7FFF;     // Ustawienie rejestrow kierunku
+    TRISB = 0x7FFF;     //rejestry kierunkow
     TRISD = 0xFFE7;
     TRISE = 0x0000;
     TRISA = 0x0000;
 
-    initializeLCD();         // Inicjalizacja wyświetlacza
+    initializeLCD();
 
-    unsigned int p1time = 10; // ustawienie czasu
-    unsigned int p2time = 10; // ustawienie czasu
-    bool p1now = true; // flagi na tury
-    bool p2now = false;
-    bool game_over = false; // flaga konca gry
+    unsigned int p1time = 300; // ustawienie czasu
+    unsigned int p2time = 300; // ustawienie czasu
+    bool p1now = true; //tura gracza 1
+    bool p2now = false; //tura gracza 2
+    bool game_over = false; // koniec gry
 	
     while(1) {
         if(game_over) {
             setCurLCD(1, 0);
             printLCD("Koniec gry");
-            while(1); // Zatrzymaj program
+            while(1); //zatrzymanie programu
         }
 
-        if(PORTDbits.RD6==0){  // Przycisk gracza 1
+        if(PORTDbits.RD6==0){  //guzik gracza nr.1
             p1now = false;
             p2now = true;
             
         }
 
-        if(PORTDbits.RD7==0){  // Przycisk gracza 2
+        if(PORTDbits.RD7==0){  //guzik gracza nr.2
             p2now = false;
             p1now = true;
         }
 
         if(p1now) {
-            __delayMiliSec(1000); // Odliczanie co sekundę
+            __delayMiliSec(1000); //odliczanie
             p1time--;
         }
 
         if(p2now) {
-            __delayMiliSec(1000); // Odliczanie co sekundę
+            __delayMiliSec(1000);
             p2time--;
         }
 
+	//wyswitlanie czasu graczy
         timeDisp(p1time,1);
         timeDisp(p2time,2);
         
-        // Koniec czasu
+        //skonczyl sie czas
         if(p1time == 0) {
             setCurLCD(2, 0);
             printLCD("Gracz 2 wygrywa!");
