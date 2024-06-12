@@ -17,8 +17,8 @@
 #include <libpic30.h>
 #include <stdbool.h>
 
-// DEFINICJE MAKRO
-#define FCY         4000000UL   // Częstotliwość pracy oscylatora
+//makra
+#define FCY         4000000UL   //czestotliwosc oscylatora
 #define LCD_E       LATDbits.LATD4  
 #define LCD_RW      LATDbits.LATD5
 #define LCD_RS      LATBbits.LATB15
@@ -34,7 +34,10 @@
 #define LCD_CUST_CHAR   0x40
 #define LCD_SHIFT_R     0x1D
 
-// Funckje delay
+//WAZNE!!!!!!
+//trzeba przytrzymac sekunde guzik start/stop by wznowic/zatrzymac prace
+
+// delaye
 void __delayNanoSec(unsigned long nanosec){
     __delay32(nanosec*FCY/1000000);
 }
@@ -43,7 +46,7 @@ void __delayMiliSec(unsigned long milisec){
     __delay32(milisec*FCY/1000);
 }
 
-// Funkcje LCD
+//wysylanie komend do lcd
 void sendComLCD(unsigned char comend){
     LCD_RW = 0;     
     LCD_RS = 0;     
@@ -53,6 +56,7 @@ void sendComLCD(unsigned char comend){
     LCD_E = 0;
 }
 
+//wysylanie danych do lcd
 void sendDataLCD(unsigned char data){
     LCD_RW = 0;
     LCD_RS = 1;     
@@ -62,12 +66,14 @@ void sendDataLCD(unsigned char data){
     LCD_E = 0;
 }
 
+//wyswietlanie ciagow znakow
 void printLCD(unsigned char* str){
     while(*str){
         sendDataLCD(*str++);
     }
 }
 
+//ustawianie kursora
 void LCD_setCursor(unsigned char row, unsigned char col){
     unsigned char address;
     if (row == 1){
@@ -79,6 +85,7 @@ void LCD_setCursor(unsigned char row, unsigned char col){
     sendComLCD(address);
 }
 
+
 void LCD_init(){
     __delayMiliSec(20);
     sendComLCD(LCD_CONFIG);
@@ -89,13 +96,14 @@ void LCD_init(){
    __delayMiliSec(2);
 }
 
-// Funkcje obsługi przycisków i potencjometru
+//obsluga potencjometru
 unsigned int read_ADC(void){
     AD1CON1bits.SAMP = 1;
     while(!AD1CON1bits.DONE);
     return ADC1BUF0;
 }
 
+//wyswietlanie mocy w danym formacie
 void powerDisp(unsigned int moc){
     LCD_setCursor(1, 0);
     printLCD("Moc(W): ");
@@ -104,6 +112,7 @@ void powerDisp(unsigned int moc){
     sendDataLCD('0' + moc % 10);
 }
 
+//wyswietlanie czasu w danym formacie
 void timeDisp(unsigned int czas){
     LCD_setCursor(2, 0);
     printLCD("Czas: ");
@@ -114,69 +123,69 @@ void timeDisp(unsigned int czas){
 }
 
 int main(void) {
-    TRISB = 0x7FFF;     // Ustawienie rejestrow kierunku
+    TRISB = 0x7FFF;     //rejestry kierunkow
     TRISD = 0xFFE7;
     TRISE = 0x0000;
     TRISA = 0xFFFF;
     
-    AD1CON1 = 0x80E4;   // Ustawienia ADC
+    AD1CON1 = 0x80E4;
     AD1CON2 = 0x0404;
     AD1CON3 = 0x0F00;
     AD1CHS = 0;
     AD1CSSL = 0x0020;
     
-    LCD_init();         // Inicjalizacja wyświetlacza
-    
+    LCD_init();
+
+	//zmienne do mocy i czasu
     unsigned int moc = 0;
     unsigned int czas = 0;
     bool running = false;
     
-    // flagi na buttony
     unsigned char current6 = 0, prev6 = 0;
     unsigned char current7 = 0, prev7 = 0;
     unsigned char currentA7 = 0, prevA7 = 0;
     
     while(1) {
-        moc = read_ADC() / 10; // Skalowanie wartości ADC do zakresu 0-102
+        moc = read_ADC() / 10; //skala oscylatora
         
         current6 = PORTDbits.RD6;
         current7 = PORTDbits.RD7;
 		currentA7 = PORTAbits.RA7;
         
         if(running && czas > 0 && moc > 0){
-            __delayMiliSec(1000); // Odliczanie w dół co sekundę
+            __delayMiliSec(1000); //odliczanie w dol
             czas--;
         }
         else
         {
-            __delay32(150000); //delay do wykrywania stanow gdy nie jest uruchomiony
+            __delay32(150000); //delay do wykrywania zmian stanow
         }
         
         prev6 = PORTDbits.RD6;      
         prev7 = PORTDbits.RD7;
 		prevA7 = PORTAbits.RA7;
         
-        if(current6 - prev6 == 1){  // Przycisk dodawania czasu
+        if(current6 - prev6 == 1){  //dodawanie czasu
             czas += 10;
         }
        
-        if(current7 - prev7 == 1){  // Przycisk start/stop
+        if(current7 - prev7 == 1){  //start/stop
             running = !running;
         }
         
-        if(currentA7 - prevA7 == 1){  // Przycisk reset
+        if(currentA7 - prevA7 == 1){  //reset
             moc = 0;
             czas = 0;
             running = false;
         }
         
-        //zatrzymanie w przypadku zmiany mocy na zero
+        //zatrzymuje sie gry moc jest rowna 0
         if(moc == 0)
         {
             running = false;
         }
         
-        //zatrzymanie gdy czas dobiegnie konca
+        //zatrzymuje sie gdy skonczy sie czas
         if(czas == 0)
         {
             running = false;
