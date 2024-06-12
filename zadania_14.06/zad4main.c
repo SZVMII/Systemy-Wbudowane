@@ -35,36 +35,36 @@
 #define LCD_SHIFT_R     0x1D
 
 // Funckje delay
-void __delay_us(unsigned long us){
-    __delay32(us*FCY/1000000);
+void __delayNanoSec(unsigned long nanosec){
+    __delay32(nanosec*FCY/1000000);
 }
 
-void __delay_ms(unsigned long ms){
-    __delay32(ms*FCY/1000);
+void __delayMiliSec(unsigned long milisec){
+    __delay32(milisec*FCY/1000);
 }
 
 // Funkcje LCD
-void LCD_sendCommand(unsigned char command){
+void sendComLCD(unsigned char comend){
     LCD_RW = 0;     
     LCD_RS = 0;     
     LCD_E = 1;      
-    LCD_DATA = command;
-    __delay_us(50);
+    LCD_DATA = comend;
+    __delayNanoSec(50);
     LCD_E = 0;
 }
 
-void LCD_sendData(unsigned char data){
+void sendDataLCD(unsigned char data){
     LCD_RW = 0;
     LCD_RS = 1;     
     LCD_E = 1;
     LCD_DATA = data;
-    __delay_us(50);
+    __delayNanoSec(50);
     LCD_E = 0;
 }
 
-void LCD_print(unsigned char* string){
-    while(*string){
-        LCD_sendData(*string++);
+void printLCD(unsigned char* str){
+    while(*str){
+        sendDataLCD(*str++);
     }
 }
 
@@ -76,17 +76,17 @@ void LCD_setCursor(unsigned char row, unsigned char col){
     if(row == 2){
         address = LCD_CURSOR + LINE2 + col;
     }
-    LCD_sendCommand(address);
+    sendComLCD(address);
 }
 
 void LCD_init(){
-    __delay_ms(20);
-    LCD_sendCommand(LCD_CONFIG);
-    __delay_us(50);
-    LCD_sendCommand(LCD_ON);
-    __delay_us(50);
-    LCD_sendCommand(LCD_CLEAR);
-    __delay_ms(2);
+    __delayMiliSec(20);
+    sendComLCD(LCD_CONFIG);
+    __delayNanoSec(50);
+    sendComLCD(LCD_ON);
+    __delayNanoSec(50);
+    sendComLCD(LCD_CLEAR);
+   __delayMiliSec(2);
 }
 
 // Funkcje obsługi przycisków i potencjometru
@@ -96,27 +96,28 @@ unsigned int read_ADC(void){
     return ADC1BUF0;
 }
 
-void display_power(unsigned int power){
+void powerDisp(unsigned int moc){
     LCD_setCursor(1, 0);
-    LCD_print("Moc(W): ");
-    LCD_sendData('0' + power / 100);
-    LCD_sendData('0' + (power % 100) / 10);
-    LCD_sendData('0' + power % 10 -2);
+    printLCD("Moc(W): ");
+    sendDataLCD('0' + moc / 100);
+    sendDataLCD('0' + (moc % 100) / 10);
+    sendDataLCD('0' + moc % 10);
 }
 
-void display_time(unsigned int time){
+void timeDisp(unsigned int czas){
     LCD_setCursor(2, 0);
-    LCD_print("Czas: ");
-    LCD_sendData('0' + time / 60);
-    LCD_sendData(':');
-    LCD_sendData('0' + (time % 60) / 10);
-    LCD_sendData('0' + time % 10);
+    printLCD("Czas: ");
+    sendDataLCD('0' + czas / 60);
+    sendDataLCD(':');
+    sendDataLCD('0' + (czas % 60) / 10);
+    sendDataLCD('0' + czas % 10);
 }
 
 int main(void) {
     TRISB = 0x7FFF;     // Ustawienie rejestrow kierunku
     TRISD = 0xFFE7;
     TRISE = 0x0000;
+    TRISA = 0xFFFF;
     
     AD1CON1 = 0x80E4;   // Ustawienia ADC
     AD1CON2 = 0x0404;
@@ -127,48 +128,61 @@ int main(void) {
     LCD_init();         // Inicjalizacja wyświetlacza
     
     unsigned int moc = 0;
-    unsigned int time = 0;
+    unsigned int czas = 0;
     bool running = false;
-    bool reset = false;
     
-    char current6 = 0, prev6 = 0, current7 = 0, prev7 = 0, current8 = 0, prev8 = 0;
+    // flagi na buttony
+    unsigned char current6 = 0, prev6 = 0;
+    unsigned char current7 = 0, prev7 = 0;
+    unsigned char currentA7 = 0, prevA7 = 0;
     
     while(1) {
-        moc = read_ADC() / 10;
+        moc = read_ADC() / 10; // Skalowanie wartości ADC do zakresu 0-102
         
-        prev6 = PORTDbits.RD6;      //scanning for a change of buttons' state
-        prev7 = PORTDbits.RD7;
-		prev8 = PORTDbits.RD8;
-        __delay32(150000);
         current6 = PORTDbits.RD6;
         current7 = PORTDbits.RD7;
-		current8 = PORTDbits.RD8;
+		currentA7 = PORTAbits.RA7;
+        
+        if(running && czas > 0 && moc > 0){
+            __delayMiliSec(1000); // Odliczanie w dół co sekundę
+            czas--;
+        }
+        else
+        {
+            __delay32(150000); //delay do wykrywania stanow gdy nie jest uruchomiony
+        }
+        
+        prev6 = PORTDbits.RD6;      
+        prev7 = PORTDbits.RD7;
+		prevA7 = PORTAbits.RA7;
         
         if(current6 - prev6 == 1){  // Przycisk dodawania czasu
-            time += 30;
+            czas += 10;
         }
        
-        if(current7 - prev7 ==1){  // Przycisk start/stop
+        if(current7 - prev7 == 1){  // Przycisk start/stop
             running = !running;
         }
         
-        if(current8 - prev8 ==1 ){  // Przycisk reset
+        if(currentA7 - prevA7 == 1){  // Przycisk reset
             moc = 0;
-            time = 0;
+            czas = 0;
             running = false;
         }
         
-        if(running && time > 0){
-            __delay_ms(1000); // Odliczanie w dół co sekundę
-            time--;
-        }
-        
-        if(time == 0)
+        //zatrzymanie w przypadku zmiany mocy na zero
+        if(moc == 0)
         {
             running = false;
         }
-        display_power(moc);
-        display_time(time);
+        
+        //zatrzymanie gdy czas dobiegnie konca
+        if(czas == 0)
+        {
+            running = false;
+        }
+        powerDisp(moc);
+        timeDisp(czas);
     }
     
     return 0;
